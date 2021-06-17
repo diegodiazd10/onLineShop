@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
   name: String,
-  price: String,
+  price: Number,
   active: Boolean,
-  category: { type: mongoose.Schema.Types.ObjectId, ref: "category" },
+  categoryId: { type: mongoose.Schema.ObjectId, ref: "category" },
   date: { type: Date, default: Date.now },
 });
 
