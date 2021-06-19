@@ -2,8 +2,9 @@ const express = require("express");
 const Category = require("../models/category");
 const router = express.Router();
 const Product = require("../models/product");
+const Auth = require("../middleware/auth")
 
-router.post("/registerProduct", async (req, res) => {
+router.post("/registerProduct", Auth, async (req, res) => {
   if (!req.body.name || !req.body.price)
     return res.status(401).send("Process Failed: Incomplete Data");
   const prodExists = await Product.findOne({ name: req.body.name });
@@ -25,7 +26,7 @@ router.post("/registerProduct", async (req, res) => {
   res.status(200).send({ result });
 });
 
-router.get("/listProduct/:name?", async (req, res) => {
+router.get("/listProduct/:name?", Auth, async (req, res) => {
   const products = await Product.find({
     name: new RegExp(req.params["name"], "i"),
   })
@@ -36,7 +37,7 @@ router.get("/listProduct/:name?", async (req, res) => {
   res.status(200).send({ products });
 });
 
-router.put("/updateProduct", async (req,res) => {
+router.put("/updateProduct", Auth, async (req,res) => {
     if(
         !req.body._id ||
         !req.body.name ||
@@ -53,5 +54,22 @@ router.put("/updateProduct", async (req,res) => {
     if(!product) return res.status(401).send("Process Failed: Error editing Product");
     res.status(401).send({ product })
 })
+
+router.put("/deleteProduct", Auth, async (req, res) => {
+  if(!req.body._id ||
+    !req.body.name ||
+    !req.body.price ||
+    !req.body.active ||
+    !req.body.categoryId)
+    return res.status(401).send("Failed Process: Data incomplete")
+    const product = await Product.findByIdAndUpdate(req.body._id, {
+      name: req.body.name,
+      price: req.body.price,
+      active: false,
+      categoryId: req.body.categoryId  
+    })
+    if (!product) return res.status(401).send("Failed Process: Can't Delete product");
+    res.status(200).send( {product})
+}) 
 
 module.exports = router;

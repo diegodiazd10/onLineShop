@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Role = require("../models/role");
 const User = require("../models/user");
+const Auth = require("../middleware/auth")
 
-router.post("/registerRole", async (req, res) => {
+router.post("/registerRole", Auth, async (req, res) => {
   if (!req.body.name || !req.body.description)
     return res.status(401).send("Process Failed: Incomplete Data");
 
@@ -21,7 +22,7 @@ router.post("/registerRole", async (req, res) => {
   return res.status(401).send({ result });
 });
 
-router.get("/listRole/", async (req, res) => {
+router.get("/listRole/", Auth, async (req, res) => {
   const role = await Role.find();
   if (!role) return res.status(401).send("Process Failed: No Roles Found");
   return res.status(200).send({ role });

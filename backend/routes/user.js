@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const User = require("../models/user");
 const Role = require("../models/role");
+const Auth = require("../middleware/auth")
 
 router.post("/registerUser", async (req, res) => {
   if (!req.body.name || !req.body.email || !req.body.password)
@@ -35,7 +36,7 @@ router.post("/registerUser", async (req, res) => {
   }
 });
 
-router.get("/listUsers/:name?", async (req, res) => {
+router.get("/listUsers/:name?", Auth, async (req, res) => {
   const users = await User.find({ name: new RegExp(req.params["name"], "i") })
     .populate("roleId")
     .exec();
@@ -43,7 +44,7 @@ router.get("/listUsers/:name?", async (req, res) => {
   return res.status(200).send({ users });
 });
 
-router.put("/updateUser", async (req, res) => {
+router.put("/updateUser", Auth, async (req, res) => {
   if (
     !req.body._id ||
     !req.body.name ||
@@ -67,7 +68,7 @@ router.put("/updateUser", async (req, res) => {
     return res.status(200).send({ user })
 });
 
-router.delete("/deleteUser/:_id", async (req, res) => {
+router.delete("/deleteUser/:_id", Auth, async (req, res) => {
     const validId = mongoose.Types.ObjectId.isValid(req.params._id);
     if(!validId) return res.status(401).send("Process failed: Invalid Id");
 
@@ -76,7 +77,7 @@ router.delete("/deleteUser/:_id", async (req, res) => {
     return res.status(200).send("User deleted");
 })
 
-router.put("/deleteUser", async (req, res) => {
+router.put("/deleteUser", Auth, async (req, res) => {
     if(
         !req.body._id ||
         !req.body.name ||
